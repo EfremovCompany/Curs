@@ -14,7 +14,8 @@ namespace Maze
     public partial class Menu : Form
     {
         SoundPlayer intro;
-        bool isSound = true;
+        bool isSound;
+        public int complexity;
         
         public Menu()
         {
@@ -26,17 +27,21 @@ namespace Maze
         {
             SoundOFF.Visible = false;
             SoundON.Visible = true;
+            isSound = true;
             intro.PlayLooping();
         }
 
         private void NewGame_Click(object sender, EventArgs e)
         {
-
+            complexity = 1;
+            this.Visible = false;
+            Game GameForm = new Game(complexity, isSound);
+            GameForm.ShowDialog(); 
         }
 
         private void Exit_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Environment.Exit(0);
         }
 
         private void Menu_Load(object sender, EventArgs e)
@@ -49,6 +54,7 @@ namespace Maze
         {
             SoundON.Visible = false;
             SoundOFF.Visible = true;
+            isSound = false;
             intro.Stop();
         }
 
