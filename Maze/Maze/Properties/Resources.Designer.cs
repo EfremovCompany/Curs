@@ -73,6 +73,16 @@ namespace Maze.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap brick_wall {
+            get {
+                object obj = ResourceManager.GetObject("brick_wall", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap health {
             get {
                 object obj = ResourceManager.GetObject("health", resourceCulture);
@@ -86,6 +96,15 @@ namespace Maze.Properties {
         internal static System.IO.UnmanagedMemoryStream intro1 {
             get {
                 return ResourceManager.GetStream("intro1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string Map {
+            get {
+                return ResourceManager.GetString("Map", resourceCulture);
             }
         }
     }

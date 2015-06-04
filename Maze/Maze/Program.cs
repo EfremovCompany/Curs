@@ -8,6 +8,9 @@ namespace Maze
 {
     static class Program
     {
+        internal static Menu IMenu;
+        internal static Game IGame;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -16,7 +19,10 @@ namespace Maze
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Menu());
+
+            IMenu = new Menu();
+
+            Application.Run(IMenu);
         }
     }
 }
