@@ -12,18 +12,19 @@ namespace Maze
 {
     public partial class Game : Form
     {
-        private Image m_wall;
+        private Graphics m_drawHandle;
+        private Image tex_wall;
         int gameTime;
         int xPos;
         int yPos;
-
+        public const int CANVAS_HEIGHT = 600;
+        public const int CANVAS_WIDTH = 1000;
         public Game()
         {
             InitializeComponent();
             MessageBox.Show("Ready?");
             GenerateMap();
             timer1.Start();
-            Exit.BackColor = Color.Transparent;
             Player obj = new Player();
             obj.SetPlayerHealth(GetComplexity);
             //HealthTextBox.Text = obj.GetPlayerHealth().ToString();
@@ -42,8 +43,12 @@ namespace Maze
             if (e.KeyCode == Keys.Escape)
             {
                 timer1.Stop();
-                PauseMenu PauseForm = new PauseMenu();
-                PauseForm.Show();
+                Program.IMenu.Activate();
+                Program.IGame.Hide();
+            }
+            if (e.KeyCode == Keys.Left)
+            {
+
             }
         }
         private void timer1_Tick(object sender, EventArgs e)
@@ -88,6 +93,22 @@ namespace Maze
         }
         private void GenerateMap()
         {
+         
+        }
+        public Game(Graphics g)
+        {
+            m_drawHandle = g;
+        }
+        private void LoadAssets()
+        {
+            tex_wall = Maze.Properties.Resources.brick_wall;
+        }
+
+        private void Game_Paint(object sender, PaintEventArgs e)
+        {
+            tex_wall = Maze.Properties.Resources.brick_wall;
+            
+
             xPos = 20;
             yPos = 50;
             string[] mapLines = System.IO.File.ReadAllLines("../../Resources/Map.txt");
@@ -97,18 +118,15 @@ namespace Maze
                 {
                     if (str == 'X')
                     {
-                        Point ulCorner = new Point(xPos, yPos);
+                        e.Graphics.DrawImage(tex_wall, xPos, yPos);
                         xPos = xPos + 25;
-                        yPos = yPos + 25;
                     }
+                    xPos = xPos + 25;
                 }
+                yPos = yPos + 25;
+                xPos = 20;
             }
-        }
-
-        private void Game_Paint(object sender, PaintEventArgs e)
-        {
-            Graphics wall = e.Graphics;
-            wall.DrawImage(Image.FromFile("../../Resources/brick_wall.png"), new Point(xPos, yPos));
+       
         }
     }
 }
