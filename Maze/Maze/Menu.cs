@@ -14,43 +14,43 @@ namespace Maze
     public partial class Menu : Form
     {
         SoundPlayer intro;
-        bool isSound = true;
+        public bool isSound;
+        public int complexity;
         
         public Menu()
         {
             InitializeComponent();
             SoundOFF.Visible = false;
         }
-
         private void SoundOFF_Click(object sender, EventArgs e)
         {
             SoundOFF.Visible = false;
             SoundON.Visible = true;
+            isSound = true;
             intro.PlayLooping();
         }
-
         private void NewGame_Click(object sender, EventArgs e)
         {
-
+            complexity = 1;
+            Program.IGame = new Game();
+            Program.IGame.ShowDialog();
+            Hide();
         }
-
         private void Exit_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Environment.Exit(0);
         }
-
         private void Menu_Load(object sender, EventArgs e)
         {
             intro = new SoundPlayer(Properties.Resources.intro1);
             intro.PlayLooping();
         }
-
         private void SoundON_Click(object sender, EventArgs e)
         {
             SoundON.Visible = false;
             SoundOFF.Visible = true;
+            isSound = false;
             intro.Stop();
         }
-
     }
 }
