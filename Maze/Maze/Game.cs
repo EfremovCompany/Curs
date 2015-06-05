@@ -17,11 +17,13 @@ namespace Maze
         int gameTime;
         int xPos;
         int yPos;
-        public const int CANVAS_HEIGHT = 600;
-        public const int CANVAS_WIDTH = 1000;
+        public const int CANVAS_WIDTH = 600;
+        public const int CANVAS_HEIGHT = 1000;
         public Game()
         {
             InitializeComponent();
+            KeyDown += new KeyEventHandler(Game_KeyDown);
+            Paint += new PaintEventHandler(Game_Paint);
             MessageBox.Show("Ready?");
             GenerateMap();
             timer1.Start();
@@ -48,8 +50,21 @@ namespace Maze
             }
             if (e.KeyCode == Keys.Left)
             {
-
+                rect.Location = new Point(rect.Left - 5, rect.Top);
             }
+            if (e.KeyCode == Keys.Right)
+            {
+                rect.Location = new Point(rect.Left + 5, rect.Top);
+            }
+            if (e.KeyCode == Keys.Up)
+            {
+                rect.Location = new Point(rect.Left, rect.Top - 5);
+            }
+            if (e.KeyCode == Keys.Down)
+            {
+                rect.Location = new Point(rect.Left, rect.Top + 5);
+            }
+            Refresh();
         }
         private void timer1_Tick(object sender, EventArgs e)
         {
@@ -95,20 +110,20 @@ namespace Maze
         {
          
         }
-        public Game(Graphics g)
-        {
-            m_drawHandle = g;
-        }
+
         private void LoadAssets()
         {
             tex_wall = Maze.Properties.Resources.brick_wall;
         }
 
+        Rectangle rect = new Rectangle(0, 0, 25, 25);
+
+        Pen pen = new Pen(Color.Green);
         private void Game_Paint(object sender, PaintEventArgs e)
         {
             tex_wall = Maze.Properties.Resources.brick_wall;
+            e.Graphics.DrawEllipse(pen, rect);
             
-
             xPos = 20;
             yPos = 50;
             string[] mapLines = System.IO.File.ReadAllLines("../../Resources/Map.txt");

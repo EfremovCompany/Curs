@@ -24,10 +24,6 @@ namespace Maze
         }
         private void NewGame_Click(object sender, EventArgs e)
         {
-            if(isStarted)
-            {
-                Program.IGame.Close();
-            }
             complexity = 1;
             Continue.Visible = true;
             isStarted = true;

@@ -9,7 +9,7 @@ namespace Maze
     class Player
     {
         private int m_health;
-
+        private int yCoord, xCoord;
         public int GetPlayerHealth()
         {
             return m_health;
@@ -34,6 +34,25 @@ namespace Maze
         public bool IfHaveKey()
         {
             return false;
+        }
+        public void SetCoordinates(int x, int y)
+        {
+            if (x > 600 || x < 0)
+            {
+                return;
+            }
+            else
+            {
+                xCoord = x;
+            }
+            if (y > 1000 || y < 0)
+            {
+                return;
+            }
+            else
+            {
+                yCoord = y;
+            }
         }
 
         public void GetPos()

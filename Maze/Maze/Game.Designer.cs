@@ -70,6 +70,7 @@
             this.ClientSize = new System.Drawing.Size(984, 562);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.PrintTime);
+            this.DoubleBuffered = true;
             this.Name = "Game";
             this.Text = "Game";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Game_FormClosed);
