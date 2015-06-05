@@ -97,7 +97,7 @@
             this.Controls.Add(this.NewGame);
             this.ForeColor = System.Drawing.Color.CadetBlue;
             this.Name = "Menu";
-            this.Text = "Меню";
+            this.Text = "Menu";
             this.Load += new System.EventHandler(this.Menu_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Menu_KeyDown);
             this.ResumeLayout(false);
