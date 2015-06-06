@@ -7,23 +7,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Maze
 {
     public partial class Game : Form
     {
-        private Image m_wall;
+        private Graphics m_drawHandle;
+        private Image tex_wall;
         int gameTime;
         int xPos;
         int yPos;
-
+        public const int CANVAS_WIDTH = 600;
+        public const int CANVAS_HEIGHT = 1000;
         public Game()
         {
             InitializeComponent();
+            KeyDown += new KeyEventHandler(Game_KeyDown);
+            Paint += new PaintEventHandler(Game_Paint);
             MessageBox.Show("Ready?");
             GenerateMap();
             timer1.Start();
-            Exit.BackColor = Color.Transparent;
             Player obj = new Player();
             obj.SetPlayerHealth(GetComplexity);
             //HealthTextBox.Text = obj.GetPlayerHealth().ToString();
@@ -42,9 +46,26 @@ namespace Maze
             if (e.KeyCode == Keys.Escape)
             {
                 timer1.Stop();
-                PauseMenu PauseForm = new PauseMenu();
-                PauseForm.Show();
+                Program.IMenu.Activate();
+                Program.IGame.Hide();
             }
+            if (e.KeyCode == Keys.Left)
+            {
+                rect.Location = new Point(rect.Left - 5, rect.Top);
+            }
+            if (e.KeyCode == Keys.Right)
+            {
+                rect.Location = new Point(rect.Left + 5, rect.Top);
+            }
+            if (e.KeyCode == Keys.Up)
+            {
+                rect.Location = new Point(rect.Left, rect.Top - 5);
+            }
+            if (e.KeyCode == Keys.Down)
+            {
+                rect.Location = new Point(rect.Left, rect.Top + 5);
+            }
+            Refresh();
         }
         private void timer1_Tick(object sender, EventArgs e)
         {
@@ -88,27 +109,43 @@ namespace Maze
         }
         private void GenerateMap()
         {
-            xPos = 20;
-            yPos = 50;
-            string[] mapLines = System.IO.File.ReadAllLines("../../Resources/Map.txt");
-            for (int i = 1; i < System.IO.File.ReadAllLines("../../Resources/Map.txt").Length; i++)
-            {
-                foreach(char str in mapLines[i])
-                {
-                    if (str == 'X')
-                    {
-                        Point ulCorner = new Point(xPos, yPos);
-                        xPos = xPos + 25;
-                        yPos = yPos + 25;
-                    }
-                }
-            }
+         
         }
 
+        private void LoadAssets()
+        {
+            tex_wall = Maze.Properties.Resources.brick_wall;
+        }
+
+        Rectangle rect = new Rectangle(0, 0, 25, 25);
+
+        Pen pen = new Pen(Color.Green);
         private void Game_Paint(object sender, PaintEventArgs e)
         {
-            Graphics wall = e.Graphics;
-            wall.DrawImage(Image.FromFile("../../Resources/brick_wall.png"), new Point(xPos, yPos));
+            tex_wall = Maze.Properties.Resources.brick_wall;
+            e.Graphics.DrawEllipse(pen, rect);
+            
+            xPos = 20;
+            yPos = 20;
+            int i = 0;
+            string[] mapLines = File.ReadAllLines("../../Resources/Map.txt");
+            foreach (string str in mapLines)
+            {
+                foreach(char s in mapLines[i])
+                {
+                    
+                    if (s == 'X')
+                    {
+                        e.Graphics.DrawImage(tex_wall, xPos, yPos);
+                    }
+                    xPos += 20;
+                    
+                }
+                yPos += 20;
+                xPos = 20;
+                i++;
+            }
+       
         }
     }
 }
