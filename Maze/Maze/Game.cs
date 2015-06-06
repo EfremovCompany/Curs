@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Maze
 {
@@ -125,21 +126,24 @@ namespace Maze
             e.Graphics.DrawEllipse(pen, rect);
             
             xPos = 20;
-            yPos = 50;
-            string[] mapLines = System.IO.File.ReadAllLines("../../Resources/Map.txt");
-            for (int i = 1; i < System.IO.File.ReadAllLines("../../Resources/Map.txt").Length; i++)
+            yPos = 20;
+            int i = 0;
+            string[] mapLines = File.ReadAllLines("../../Resources/Map.txt");
+            foreach (string str in mapLines)
             {
-                foreach(char str in mapLines[i])
+                foreach(char s in mapLines[i])
                 {
-                    if (str == 'X')
+                    
+                    if (s == 'X')
                     {
                         e.Graphics.DrawImage(tex_wall, xPos, yPos);
-                        xPos = xPos + 25;
                     }
-                    xPos = xPos + 25;
+                    xPos += 20;
+                    
                 }
-                yPos = yPos + 25;
+                yPos += 20;
                 xPos = 20;
+                i++;
             }
        
         }
