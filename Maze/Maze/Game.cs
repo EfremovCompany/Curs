@@ -13,9 +13,9 @@ namespace Maze
     public partial class Game : Form
     {
         private Image m_wall;
+        private Image m_player;
+        private Image m_enemy;
         int gameTime;
-        int xPos;
-        int yPos;
 
         public Game()
         {
@@ -23,8 +23,12 @@ namespace Maze
             MessageBox.Show("Ready?");
             GenerateMap();
             timer1.Start();
-            Exit.BackColor = Color.Transparent;
+            //Exit.BackColor = Color.Transparent;
             Player obj = new Player();
+            //if (!LoadImage(m_wall, "../../Resources/Map.txt"))
+            //{
+            //    Application.Exit();
+            //}
             obj.SetPlayerHealth(GetComplexity);
             //HealthTextBox.Text = obj.GetPlayerHealth().ToString();
         }
@@ -88,27 +92,60 @@ namespace Maze
         }
         private void GenerateMap()
         {
-            xPos = 20;
-            yPos = 50;
-            string[] mapLines = System.IO.File.ReadAllLines("../../Resources/Map.txt");
-            for (int i = 1; i < System.IO.File.ReadAllLines("../../Resources/Map.txt").Length; i++)
-            {
-                foreach(char str in mapLines[i])
-                {
-                    if (str == 'X')
-                    {
-                        Point ulCorner = new Point(xPos, yPos);
-                        xPos = xPos + 25;
-                        yPos = yPos + 25;
-                    }
-                }
-            }
+            //xPos = 20;
+            //yPos = 50;
+            //string[] mapLines = System.IO.File.ReadAllLines("../../Resources/Map.txt");
+            //for (int i = 1; i < System.IO.File.ReadAllLines("../../Resources/Map.txt").Length; i++)
+            //{
+            //    foreach(char str in mapLines[i])
+            //    {
+            //        if (str == 'X')
+            //        {
+            //            Point ulCorner = new Point(xPos, yPos);
+            //            xPos = xPos + 25;
+            //            yPos = yPos + 25;
+            //        }
+            //    }
+            //}
         }
 
         private void Game_Paint(object sender, PaintEventArgs e)
         {
             Graphics wall = e.Graphics;
-            wall.DrawImage(Image.FromFile("../../Resources/brick_wall.png"), new Point(xPos, yPos));
+            int xPos = 20;
+            int yPos = 50;
+            string[] mapLines = System.IO.File.ReadAllLines("../../Resources/Map.txt");
+            for (int i = 1; i < System.IO.File.ReadAllLines("../../Resources/Map.txt").Length; i++)
+            {
+                foreach (char str in mapLines[i-1])
+                {
+                    if (str == 'X')
+                    {
+                        //MessageBox.Show(xPos.ToString() + yPos.ToString());
+                        //Graphics wall = e.Graphics;
+                        //Image wall = Image.FromFile("../../Resources/brick_wall.png");
+                        wall.DrawImage(Image.FromFile("../../Resources/brick_wall.png"), xPos, yPos);
+                    }
+                    xPos = xPos + 25;  
+                }
+                xPos = 20;
+                yPos = yPos + 25;
+                //MessageBox.Show(yPos.ToString() + xPos.ToString());
+            }
+        }
+        private bool LoadImage(Image image, string fileName)
+        {
+            try
+            {
+                image = Image.FromFile(fileName);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Картинки не могут быть загружены!", "Ошибка");
+                return false;
+            }
+
+            return true;
         }
     }
 }
