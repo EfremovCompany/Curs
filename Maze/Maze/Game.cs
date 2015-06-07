@@ -20,6 +20,7 @@ namespace Maze
         public const int MAZE_HEIGHT = 500;
         public const int MAZE_WIDTH = 800;
         public const int step = 20;
+        public const int stepPl = 10;
         public Game()
         {
             InitializeComponent();
@@ -60,30 +61,75 @@ namespace Maze
             }
             if (e.KeyCode == Keys.Left)
             {
+                bool goLeft = true;
                 if (rect.Left > 0)
                 {
-                    rect.Location = new Point(rect.Left - 5, rect.Top);
+                    for (int i = 0; i < array.Length; ++i)
+                    {
+                        if (array[i].X == rect.Left - step && array[i].Y == rect.Top)
+                        {
+                            goLeft = false;
+                        }
+                    }
+                    if (goLeft)
+                    {
+                        rect.Location = new Point(rect.Left - stepPl, rect.Top);
+                    }
                 }
             }
             if (e.KeyCode == Keys.Right)
             {
-                if (rect.Right <= MAZE_WIDTH)
+                bool goRight = true;
+                if (rect.Left <= MAZE_WIDTH)
                 {
-                    rect.Location = new Point(rect.Left + 5, rect.Top);
+                    for (int i = 0; i < array.Length;++i)
+                    {
+                        if (array[i].X == rect.Left + step && array[i].Y == rect.Top)
+                        {
+                            goRight = false;
+                        }
+                    }
+                    if (goRight)
+                    {
+                        rect.Location = new Point(rect.Left + stepPl, rect.Top);
+                    }
                 }
             }
             if (e.KeyCode == Keys.Up)
             {
+                bool goUp = true;
                 if (rect.Top > step)
                 {
-                    rect.Location = new Point(rect.Left, rect.Top - 5);
+                    for (int i = 0; i < array.Length; ++i)
+                    {
+                        if (array[i].X == rect.Left && array[i].Y == rect.Top - step)
+                        {
+                            goUp = false;
+                        }
+                    }
+                    if (goUp)
+                    {
+                        rect.Location = new Point(rect.Left, rect.Top - stepPl);
+                    }
                 }
             }
             if (e.KeyCode == Keys.Down)
             {
+                bool goDown = true;
                 if (rect.Top < MAZE_HEIGHT)
                 {
-                    rect.Location = new Point(rect.Left, rect.Top + 5);
+                    for (int i = 0; i < array.Length; ++i)
+                    {
+                        if (array[i].X == rect.Left 
+                            && array[i].Y == rect.Top + step)
+                        {
+                            goDown = false;
+                        }
+                    }
+                    if (goDown)
+                    {
+                        rect.Location = new Point(rect.Left, rect.Top + stepPl);
+                    }
                 }
             }
             Game_Over();
@@ -143,6 +189,7 @@ namespace Maze
         SolidBrush solidBrush = new SolidBrush(
         Color.FromArgb(255, 255, 0, step));
         Pen pen = new Pen(Color.Green);
+        Point[] array = new Point[950];
         private void Game_Paint(object sender, PaintEventArgs e)
         {
             tex_wall = Maze.Properties.Resources.brick_wall;
@@ -151,9 +198,8 @@ namespace Maze
             
             xPos = step;
             yPos = step;
-            int i = 0;
+            int i = 0, j = 0;
             string[] mapLines = File.ReadAllLines("../../Resources/Map.txt");
-            e.Graphics.DrawImage(tex_wall, 780, 200);
             foreach (string str in mapLines)
             {
                 foreach(char s in mapLines[i])
@@ -162,9 +208,10 @@ namespace Maze
                     if (s == 'X')
                     {
                         e.Graphics.DrawImage(tex_wall, xPos, yPos);
+                        array[j] = new Point(xPos, yPos);
                     }
                     xPos += step;
-                    
+                    j++;
                 }
                 yPos += step;
                 xPos = step;
