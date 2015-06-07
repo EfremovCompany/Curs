@@ -13,13 +13,13 @@ namespace Maze
 {
     public partial class Game : Form
     {
-        private Graphics m_drawHandle;
         private Image tex_wall;
         int gameTime;
         int xPos;
         int yPos;
-        public const int CANVAS_WIDTH = 600;
-        public const int CANVAS_HEIGHT = 1000;
+        public const int MAZE_HEIGHT = 500;
+        public const int MAZE_WIDTH = 800;
+        public const int step = 20;
         public Game()
         {
             InitializeComponent();
@@ -41,6 +41,15 @@ namespace Maze
             this.Close();
             Application.Exit();
         }
+        private void Game_Over()
+        {
+            if (rect.Left == 780 && rect.Top == 200)
+            {
+                timer1.Stop();
+                MessageBox.Show("Winner!", "Good job!");
+                Program.IMenu.Hide();
+            }
+        }
         private void Game_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape)
@@ -51,20 +60,33 @@ namespace Maze
             }
             if (e.KeyCode == Keys.Left)
             {
-                rect.Location = new Point(rect.Left - 5, rect.Top);
+                if (rect.Left > 0)
+                {
+                    rect.Location = new Point(rect.Left - 5, rect.Top);
+                }
             }
             if (e.KeyCode == Keys.Right)
             {
-                rect.Location = new Point(rect.Left + 5, rect.Top);
+                if (rect.Right <= MAZE_WIDTH)
+                {
+                    rect.Location = new Point(rect.Left + 5, rect.Top);
+                }
             }
             if (e.KeyCode == Keys.Up)
             {
-                rect.Location = new Point(rect.Left, rect.Top - 5);
+                if (rect.Top > step)
+                {
+                    rect.Location = new Point(rect.Left, rect.Top - 5);
+                }
             }
             if (e.KeyCode == Keys.Down)
             {
-                rect.Location = new Point(rect.Left, rect.Top + 5);
+                if (rect.Top < MAZE_HEIGHT)
+                {
+                    rect.Location = new Point(rect.Left, rect.Top + 5);
+                }
             }
+            Game_Over();
             Refresh();
         }
         private void timer1_Tick(object sender, EventArgs e)
@@ -117,18 +139,21 @@ namespace Maze
             tex_wall = Maze.Properties.Resources.brick_wall;
         }
 
-        Rectangle rect = new Rectangle(0, 0, 25, 25);
-
+        Rectangle rect = new Rectangle(0, step, 19, 19);
+        SolidBrush solidBrush = new SolidBrush(
+        Color.FromArgb(255, 255, 0, step));
         Pen pen = new Pen(Color.Green);
         private void Game_Paint(object sender, PaintEventArgs e)
         {
             tex_wall = Maze.Properties.Resources.brick_wall;
             e.Graphics.DrawEllipse(pen, rect);
+            e.Graphics.FillEllipse(solidBrush, rect);
             
-            xPos = 20;
-            yPos = 20;
+            xPos = step;
+            yPos = step;
             int i = 0;
             string[] mapLines = File.ReadAllLines("../../Resources/Map.txt");
+            e.Graphics.DrawImage(tex_wall, 780, 200);
             foreach (string str in mapLines)
             {
                 foreach(char s in mapLines[i])
@@ -138,14 +163,13 @@ namespace Maze
                     {
                         e.Graphics.DrawImage(tex_wall, xPos, yPos);
                     }
-                    xPos += 20;
+                    xPos += step;
                     
                 }
-                yPos += 20;
-                xPos = 20;
+                yPos += step;
+                xPos = step;
                 i++;
             }
-       
         }
     }
 }

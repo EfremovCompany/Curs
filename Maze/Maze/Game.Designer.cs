@@ -73,7 +73,7 @@
             this.Controls.Add(this.PrintTime);
             this.DoubleBuffered = true;
             this.Name = "Game";
-            this.Text = "Game";
+            this.Text = "> ";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Game_FormClosed);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Game_Paint);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Game_KeyDown);
