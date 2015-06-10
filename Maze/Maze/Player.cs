@@ -8,37 +8,22 @@ namespace Maze
 {
     class Player
     {
-        private int m_health;
+        private int yPos = 20, xPos = 0;
 
-        public int GetPlayerHealth()
+        public void MovePlayer(int newPosX, int newPosY)
         {
-            return m_health;
+            xPos = newPosX;
+            yPos = newPosY;
         }
 
-        public void SetPlayerHealth(int complexity)
+        public int GetPosX()
         {
-            if (complexity == 1)
-            {
-                m_health = 3;
-            }
-            if (complexity == 2)
-            {
-                m_health = 2;
-            }
-            if (complexity == 3)
-            {
-                m_health = 1;
-            }
+            return xPos;
         }
 
-        public bool IfHaveKey()
+        public int GetPosY()
         {
-            return false;
-        }
-
-        public void GetPos()
-        {
-
+            return yPos;
         }
     }
 }

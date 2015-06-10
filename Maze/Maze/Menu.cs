@@ -15,26 +15,26 @@ namespace Maze
     {
         SoundPlayer intro;
         public bool isSound;
-        public int complexity;
+        public bool isStarted = false;
         
         public Menu()
         {
             InitializeComponent();
-            SoundOFF.Visible = false;
-        }
-        private void SoundOFF_Click(object sender, EventArgs e)
-        {
-            SoundOFF.Visible = false;
-            SoundON.Visible = true;
-            isSound = true;
-            intro.PlayLooping();
         }
         private void NewGame_Click(object sender, EventArgs e)
         {
-            complexity = 1;
+            Continue.Visible = true;
+            isStarted = true;
             Program.IGame = new Game();
             Program.IGame.ShowDialog();
-            Hide();
+        }
+        private void Continue_Click(object sender, EventArgs e)
+        {
+            if (isStarted && !Program.IGame.gameIsOver)
+            {
+                Program.IGame.Show();
+                Program.IGame.ReturnToGame();
+            }
         }
         private void Exit_Click(object sender, EventArgs e)
         {
@@ -47,10 +47,26 @@ namespace Maze
         }
         private void SoundON_Click(object sender, EventArgs e)
         {
-            SoundON.Visible = false;
-            SoundOFF.Visible = true;
-            isSound = false;
-            intro.Stop();
+            if (isSound)
+            {
+                isSound = true;
+                intro.PlayLooping();
+            }
+            else
+            {
+                isSound = false;
+                intro.Stop();
+            }
         }
+
+        private void Menu_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                this.Close();
+                Program.IGame.ReturnToGame();
+            }
+        }
+
     }
 }
