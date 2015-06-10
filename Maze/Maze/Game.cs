@@ -8,29 +8,40 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Media;
 
 namespace Maze
 {
     public partial class Game : Form
     {
+        public bool gameIsOver = false;
+        //public Point[] array = new Point[950];
+        int [ , ] bricksArray= new int[800, 800];
         private Image tex_wall;
+        private Image player_icon;
+        private Image minotaur_icon;
         int gameTime;
-        int xPos;
-        int yPos;
         public const int MAZE_HEIGHT = 500;
         public const int MAZE_WIDTH = 800;
+        private const int enterX = 20;
+        private const int enterY = 200;
+        private const int exitY = 200;
+        private const int exitX = 780;
         public const int step = 20;
         public const int stepPl = 10;
+        SoundPlayer win;
+        Player obj = new Player();
+        Minotaur enemy = new Minotaur();
+        private bool startMoving = false;
+        
+
         public Game()
         {
             InitializeComponent();
             KeyDown += new KeyEventHandler(Game_KeyDown);
             Paint += new PaintEventHandler(Game_Paint);
             MessageBox.Show("Ready?");
-            GenerateMap();
             timer1.Start();
-            Player obj = new Player();
-            obj.SetPlayerHealth(GetComplexity);
             //HealthTextBox.Text = obj.GetPlayerHealth().ToString();
         }
         private void Game_FormClosed(object sender, FormClosedEventArgs e)
@@ -44,11 +55,26 @@ namespace Maze
         }
         private void Game_Over()
         {
-            if (rect.Left == 780 && rect.Top == 200)
+            if (obj.GetPosX() == enemy.xPos_enemy && obj.GetPosY() == enemy.yPos_enemy)
             {
+                gameIsOver = true;
                 timer1.Stop();
-                MessageBox.Show("Winner!", "Good job!");
-                Program.IMenu.Hide();
+                MessageBox.Show("You died!", ":(");
+                Program.IGame.Hide();
+                Program.IMenu.Activate();
+            }
+            if (obj.GetPosX() == exitX && obj.GetPosY() == exitY)
+            {
+                gameIsOver = true;
+                timer1.Stop();
+                if (!Program.IMenu.isSound)
+                {
+                    win = new SoundPlayer(Properties.Resources.win);
+                    win.Play();
+                }
+                MessageBox.Show("Winner! Your time - " + gameTime.ToString(), "Good job!");
+                Program.IGame.Hide();
+                Program.IMenu.Activate();
             }
         }
         private void Game_KeyDown(object sender, KeyEventArgs e)
@@ -61,74 +87,46 @@ namespace Maze
             }
             if (e.KeyCode == Keys.Left)
             {
-                bool goLeft = true;
-                if (rect.Left > 0)
+                if (obj.GetPosX() > 0)
                 {
-                    for (int i = 0; i < array.Length; ++i)
+                    if (obj.GetPosX() - step < 0)
                     {
-                        if (array[i].X == rect.Left - step && array[i].Y == rect.Top)
-                        {
-                            goLeft = false;
-                        }
+                        obj.MovePlayer(20, obj.GetPosY());
+                        MessageBox.Show("There is no escape!");
                     }
-                    if (goLeft)
+                    else if (bricksArray[obj.GetPosX() - step, obj.GetPosY()] == 0)
                     {
-                        rect.Location = new Point(rect.Left - stepPl, rect.Top);
+                        obj.MovePlayer(obj.GetPosX() - stepPl, obj.GetPosY());
                     }
                 }
             }
             if (e.KeyCode == Keys.Right)
             {
-                bool goRight = true;
-                if (rect.Left <= MAZE_WIDTH)
-                {
-                    for (int i = 0; i < array.Length;++i)
+                if (obj.GetPosX() <= MAZE_WIDTH)
+                 {
+                    if (bricksArray[obj.GetPosX() + step, obj.GetPosY()] == 0)
                     {
-                        if (array[i].X == rect.Left + step && array[i].Y == rect.Top)
-                        {
-                            goRight = false;
-                        }
-                    }
-                    if (goRight)
-                    {
-                        rect.Location = new Point(rect.Left + stepPl, rect.Top);
+                        obj.MovePlayer(obj.GetPosX() + stepPl, obj.GetPosY());
                     }
                 }
             }
             if (e.KeyCode == Keys.Up)
             {
-                bool goUp = true;
-                if (rect.Top > step)
+                if (obj.GetPosY() > step)
                 {
-                    for (int i = 0; i < array.Length; ++i)
+                    if (bricksArray[obj.GetPosX(), obj.GetPosY() - step] == 0)
                     {
-                        if (array[i].X == rect.Left && array[i].Y == rect.Top - step)
-                        {
-                            goUp = false;
-                        }
-                    }
-                    if (goUp)
-                    {
-                        rect.Location = new Point(rect.Left, rect.Top - stepPl);
+                        obj.MovePlayer(obj.GetPosX(), obj.GetPosY() - stepPl);
                     }
                 }
             }
             if (e.KeyCode == Keys.Down)
             {
-                bool goDown = true;
-                if (rect.Top < MAZE_HEIGHT)
+                if (obj.GetPosY() < MAZE_HEIGHT)
                 {
-                    for (int i = 0; i < array.Length; ++i)
+                    if (bricksArray[obj.GetPosX(), obj.GetPosY() + step] == 0)
                     {
-                        if (array[i].X == rect.Left 
-                            && array[i].Y == rect.Top + step)
-                        {
-                            goDown = false;
-                        }
-                    }
-                    if (goDown)
-                    {
-                        rect.Location = new Point(rect.Left, rect.Top + stepPl);
+                        obj.MovePlayer(obj.GetPosX(), obj.GetPosY() + stepPl);
                     }
                 }
             }
@@ -139,6 +137,8 @@ namespace Maze
         {
             gameTime++;
             SetTime();
+            MinotaurAI();
+            this.Refresh();
         }
         private void SetTime()
         {
@@ -161,41 +161,65 @@ namespace Maze
         {
             timer1.Start();
         }
-        private int GetComplexity
+
+        private void MinotaurAI()
         {
-            get
+            if (obj.GetPosX() == enterX && obj.GetPosY() == enterY)
             {
-                return Program.IMenu.complexity;
+                startMoving = true;
             }
-        }
-        private bool GetSound
-        {
-            get
+            if (startMoving)
             {
-                return Program.IMenu.isSound;
+                if (enemy.GetWayX() > 20)
+                {
+                    if (bricksArray[enemy.GetWayX() - step, enemy.GetWayY()] == 0)
+                    {
+                        enemy.MoveMinotaur(enemy.GetWayX() - step, enemy.GetWayY());
+                        return;
+                    }
+                }
+                if (enemy.GetWayX() <= MAZE_WIDTH)
+                {
+                    if (bricksArray[enemy.GetWayX() + step, enemy.GetWayY()] == 0)
+                    {
+                        enemy.MoveMinotaur(enemy.GetWayX() + step, enemy.GetWayY());
+                        return;
+                    }
+                }
+                if (enemy.GetWayY() > step)
+                {
+                    if (bricksArray[enemy.GetWayX(), enemy.GetWayY() - step] == 0)
+                    {
+                        enemy.MoveMinotaur(enemy.GetWayX(), enemy.GetWayY() - step);
+                        return;
+                    }
+                } 
+                if (enemy.GetWayY() < exitX)
+                {
+                    if (bricksArray[enemy.GetWayX(), enemy.GetWayY() + step] == 0)
+                    {
+                        enemy.MoveMinotaur(enemy.GetWayX(), enemy.GetWayY() + step);
+                        return;
+                    }
+                }
             }
-        }
-        private void GenerateMap()
-        {
-         
         }
 
         private void LoadAssets()
         {
             tex_wall = Maze.Properties.Resources.brick_wall;
+            player_icon = Maze.Properties.Resources.PlayerIcon;
+            minotaur_icon = Maze.Properties.Resources.MinotaurIcon;
         }
 
-        Rectangle rect = new Rectangle(0, step, 19, 19);
-        SolidBrush solidBrush = new SolidBrush(
-        Color.FromArgb(255, 255, 0, step));
-        Pen pen = new Pen(Color.Green);
-        Point[] array = new Point[950];
         private void Game_Paint(object sender, PaintEventArgs e)
         {
-            tex_wall = Maze.Properties.Resources.brick_wall;
-            e.Graphics.DrawEllipse(pen, rect);
-            e.Graphics.FillEllipse(solidBrush, rect);
-            
+            LoadAssets();
+            e.Graphics.DrawImage(minotaur_icon, enemy.xPos_enemy, enemy.yPos_enemy);
+            e.Graphics.DrawImage(player_icon, obj.GetPosX(), obj.GetPosY());
+            int xPos;
+            int yPos;
+
             xPos = step;
             yPos = step;
             int i = 0, j = 0;
@@ -204,12 +228,13 @@ namespace Maze
             {
                 foreach(char s in mapLines[i])
                 {
-                    
                     if (s == 'X')
                     {
+                        bricksArray[xPos, yPos] = 1;
                         e.Graphics.DrawImage(tex_wall, xPos, yPos);
-                        array[j] = new Point(xPos, yPos);
+                        //array[j] = new Point(xPos, yPos);
                     }
+                    else bricksArray[xPos, yPos] = 0;
                     xPos += step;
                     j++;
                 }

@@ -8,19 +8,30 @@ namespace Maze
 {
     class Minotaur
     {
-        public bool SearchPlayer()
+        public int xPos_enemy = 160, yPos_enemy = 380;
+
+        public bool SearchPlayer(int playerPosX, int playerPosY)
         {
+       
+            MoveMinotaur(playerPosX, playerPosY);
+         
             return false;
         }
 
-        private void GetWay()
+        public int GetWayX()
         {
-
+            return xPos_enemy;
         }
 
-        private void Move()
+        public int GetWayY()
         {
+            return yPos_enemy;
+        }
 
+        public void MoveMinotaur(int minotaurPosX, int minotaurPosY)
+        {
+            xPos_enemy = minotaurPosX;
+            yPos_enemy = minotaurPosY;
         }
     }
 }

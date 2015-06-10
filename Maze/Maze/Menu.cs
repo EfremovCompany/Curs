@@ -15,7 +15,6 @@ namespace Maze
     {
         SoundPlayer intro;
         public bool isSound;
-        public int complexity;
         public bool isStarted = false;
         
         public Menu()
@@ -24,7 +23,6 @@ namespace Maze
         }
         private void NewGame_Click(object sender, EventArgs e)
         {
-            complexity = 1;
             Continue.Visible = true;
             isStarted = true;
             Program.IGame = new Game();
@@ -32,7 +30,7 @@ namespace Maze
         }
         private void Continue_Click(object sender, EventArgs e)
         {
-            if (isStarted)
+            if (isStarted && !Program.IGame.gameIsOver)
             {
                 Program.IGame.Show();
                 Program.IGame.ReturnToGame();
@@ -51,12 +49,12 @@ namespace Maze
         {
             if (isSound)
             {
-                isSound = false;
+                isSound = true;
                 intro.PlayLooping();
             }
             else
             {
-                isSound = true;
+                isSound = false;
                 intro.Stop();
             }
         }
