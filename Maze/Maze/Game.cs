@@ -15,7 +15,7 @@ namespace Maze
     public partial class Game : Form
     {
         public bool gameIsOver = false;
-        public Point[] array = new Point[950];
+        //public Point[] array = new Point[950];
         int [ , ] bricksArray= new int[800, 800];
         private Image tex_wall;
         private Image player_icon;
@@ -23,11 +23,19 @@ namespace Maze
         int gameTime;
         public const int MAZE_HEIGHT = 500;
         public const int MAZE_WIDTH = 800;
+        private const int enterX = 20;
+        private const int enterY = 200;
+        private const int exitY = 200;
+        private const int exitX = 780;
         public const int step = 20;
         public const int stepPl = 10;
         SoundPlayer win;
         Player obj = new Player();
         Minotaur enemy = new Minotaur();
+        private bool startMoving = false;
+        int direction = 1;
+        int prevDirection;
+        
 
         public Game()
         {
@@ -53,11 +61,11 @@ namespace Maze
             {
                 gameIsOver = true;
                 timer1.Stop();
-                MessageBox.Show("You die!", ":(");
+                MessageBox.Show("You died!", ":(");
                 Program.IGame.Hide();
                 Program.IMenu.Activate();
             }
-            if (rect.Left == 780 && rect.Top == 200)
+            if (obj.GetPosX() == exitX && obj.GetPosY() == exitY)
             {
                 gameIsOver = true;
                 timer1.Stop();
@@ -79,54 +87,48 @@ namespace Maze
                 Program.IMenu.Activate();
                 Program.IGame.Hide();
             }
-            //Program.IPlayer.MovePlayer(0, 0);
             if (e.KeyCode == Keys.Left)
             {
-                if (rect.Left > 0)
+                if (obj.GetPosX() > 0)
                 {
                     if (obj.GetPosX() - step < 0)
                     {
                         obj.MovePlayer(20, obj.GetPosY());
-                        rect.Location = new Point(20, rect.Top);
                         MessageBox.Show("There is no escape!");
                     }
                     else if (bricksArray[obj.GetPosX() - step, obj.GetPosY()] == 0)
                     {
                         obj.MovePlayer(obj.GetPosX() - stepPl, obj.GetPosY());
-                        rect.Location = new Point(rect.Left - stepPl, rect.Top);
                     }
                 }
             }
             if (e.KeyCode == Keys.Right)
             {
-                 if (rect.Left <= MAZE_WIDTH)
+                if (obj.GetPosX() <= MAZE_WIDTH)
                  {
                     if (bricksArray[obj.GetPosX() + step, obj.GetPosY()] == 0)
                     {
                         obj.MovePlayer(obj.GetPosX() + stepPl, obj.GetPosY());
-                        rect.Location = new Point(rect.Left + stepPl, rect.Top);
                     }
                 }
             }
             if (e.KeyCode == Keys.Up)
             {
-                if (rect.Top > step)
+                if (obj.GetPosY() > step)
                 {
                     if (bricksArray[obj.GetPosX(), obj.GetPosY() - step] == 0)
                     {
                         obj.MovePlayer(obj.GetPosX(), obj.GetPosY() - stepPl);
-                        rect.Location = new Point(rect.Left, rect.Top - stepPl);
                     }
                 }
             }
             if (e.KeyCode == Keys.Down)
             {
-                if (rect.Top < MAZE_HEIGHT)
+                if (obj.GetPosY() < MAZE_HEIGHT)
                 {
                     if (bricksArray[obj.GetPosX(), obj.GetPosY() + step] == 0)
                     {
                         obj.MovePlayer(obj.GetPosX(), obj.GetPosY() + stepPl);
-                        rect.Location = new Point(rect.Left, rect.Top + stepPl);
                     }
                 }
             }
@@ -137,6 +139,8 @@ namespace Maze
         {
             gameTime++;
             SetTime();
+            MinotaurAI();
+            this.Refresh();
         }
         private void SetTime()
         {
@@ -162,9 +166,39 @@ namespace Maze
 
         private void MinotaurAI()
         {
-            //enemy.SearchPlayer(obj.GetPosX(), obj.GetPosY());
-            //po.Location = new Point(po.Left, po.Top);
-            //Refresh();
+            /*
+             направление движения 1 - вверх, 2 - вправо, 3 - вниз, 4 - влево
+             */
+            bool endStep = false;
+            while (!endStep)
+            {
+                if (direction == 1 && bricksArray[enemy.GetWayX(), enemy.GetWayY() - step] == 0 && enemy.GetWayY() > step)
+                {
+                    enemy.MoveMinotaur(enemy.GetWayX(), enemy.GetWayY() - step);
+                    endStep = true;
+                }
+                else if (direction == 2 && bricksArray[enemy.GetWayX() + step, enemy.GetWayY()] == 0 && enemy.GetWayX() <= MAZE_WIDTH)
+                {
+                    enemy.MoveMinotaur(enemy.GetWayX() + step, enemy.GetWayY());
+                    endStep = true;
+                }
+                else if (direction == 3 && bricksArray[enemy.GetWayX(), enemy.GetWayY() + step] == 0 && enemy.GetWayY() < MAZE_HEIGHT)
+                {
+                    enemy.MoveMinotaur(enemy.GetWayX(), enemy.GetWayY() + step);
+                    endStep = true;
+                }
+                else if (direction == 4 && bricksArray[enemy.GetWayX() - step, enemy.GetWayY()] == 0 && enemy.GetWayY() < exitX)
+                {
+                    enemy.MoveMinotaur(enemy.GetWayX() - step, enemy.GetWayY());
+                    endStep = true;
+                }
+                else if (direction != 4)
+                {
+                    direction = direction + 1;
+                }
+                else direction = 1;
+            }
+            prevDirection = direction;
         }
 
         private void LoadAssets()
@@ -174,11 +208,6 @@ namespace Maze
             minotaur_icon = Maze.Properties.Resources.MinotaurIcon;
         }
 
-        Rectangle rect = new Rectangle(0, step, 19, 19);
-        Rectangle po = new Rectangle(160, 380, 19, 19);
-        //SolidBrush solidBrush = new SolidBrush(
-        //Color.FromArgb(255, 255, 0, step));
-        //Pen pen = new Pen(Color.Green);
         private void Game_Paint(object sender, PaintEventArgs e)
         {
             LoadAssets();
@@ -209,7 +238,6 @@ namespace Maze
                 xPos = step;
                 i++;
             }
-            MinotaurAI();
         }
     }
 }

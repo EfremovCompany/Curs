@@ -12,33 +12,26 @@ namespace Maze
 
         public bool SearchPlayer(int playerPosX, int playerPosY)
         {
-            if(playerPosX == 20 && playerPosY == 200)
-            {
-                Move(playerPosX, playerPosY);
-                return true;
-            }
+       
+            MoveMinotaur(playerPosX, playerPosY);
+         
             return false;
         }
 
-        private int GetWayX()
+        public int GetWayX()
         {
-            return 0;
+            return xPos_enemy;
         }
 
-        private int GetWayY()
+        public int GetWayY()
         {
-            return 0;
+            return yPos_enemy;
         }
 
-        private void Move(int playerPosX, int playerPosY)
+        public void MoveMinotaur(int minotaurPosX, int minotaurPosY)
         {
-            int newPosEnemyX = xPos_enemy, newPosEnemyY;
-            //while (xPos_enemy != playerPosX && yPos_enemy != playerPosY)
-            //{
-                xPos_enemy = newPosEnemyX + 20;
-            //}
-            GetWayX();
-            GetWayY();
+            xPos_enemy = minotaurPosX;
+            yPos_enemy = minotaurPosY;
         }
     }
 }
