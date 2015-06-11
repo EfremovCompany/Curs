@@ -16,7 +16,8 @@ namespace Maze
     {
         public bool gameIsOver = false;
         //public Point[] array = new Point[950];
-        int [ , ] bricksArray= new int[800, 800];
+        int[,] bricksArray = new int[950, 520];
+        int[,] minoArray = new int[950, 520];
         private Image tex_wall;
         private Image player_icon;
         private Image minotaur_icon;
@@ -32,7 +33,7 @@ namespace Maze
         SoundPlayer win;
         Player obj = new Player();
         Minotaur enemy = new Minotaur();
-        private bool startMoving = false;
+
         
 
         public Game()
@@ -55,8 +56,10 @@ namespace Maze
         }
         private void Game_Over()
         {
-            if (obj.GetPosX() == enemy.xPos_enemy && obj.GetPosY() == enemy.yPos_enemy)
+            if (obj.GetPosX() == enemy.xPos_enemy && obj.GetPosY() == enemy.yPos_enemy 
+                && enemy.xPos_enemy == obj.GetPosX() && enemy.yPos_enemy == obj.GetPosY())
             {
+                
                 gameIsOver = true;
                 timer1.Stop();
                 MessageBox.Show("You died!", ":(");
@@ -130,7 +133,6 @@ namespace Maze
                     }
                 }
             }
-            Game_Over();
             Refresh();
         }
         private void timer1_Tick(object sender, EventArgs e)
@@ -138,6 +140,7 @@ namespace Maze
             gameTime++;
             SetTime();
             MinotaurAI();
+            Game_Over();
             this.Refresh();
         }
         private void SetTime()
@@ -161,50 +164,94 @@ namespace Maze
         {
             timer1.Start();
         }
-
         private void MinotaurAI()
-        {
-            if (obj.GetPosX() == enterX && obj.GetPosY() == enterY)
+        { 
+            if (minoArray[enemy.GetWayX(), enemy.GetWayY() + step] == 0 &&
+                enemy.GetWayY() < MAZE_HEIGHT - step)
             {
-                startMoving = true;
+                if (minoArray[enemy.GetWayX(), enemy.GetWayY()] != 3)
+                {
+                    minoArray[enemy.GetWayX(), enemy.GetWayY()] = -1;
+                }
+                enemy.MoveMinotaur(enemy.GetWayX(), enemy.GetWayY() + step);
+                return;
             }
-            if (startMoving)
+
+            if (minoArray[enemy.GetWayX() + step, enemy.GetWayY()] == 0 &&
+                enemy.GetWayX() <= MAZE_WIDTH - step * 4)
             {
-                if (enemy.GetWayX() > 20)
+                if (minoArray[enemy.GetWayX(), enemy.GetWayY()] != 3)
                 {
-                    if (bricksArray[enemy.GetWayX() - step, enemy.GetWayY()] == 0)
-                    {
-                        enemy.MoveMinotaur(enemy.GetWayX() - step, enemy.GetWayY());
-                        return;
-                    }
+                    minoArray[enemy.GetWayX(), enemy.GetWayY()] = -1;
                 }
-                if (enemy.GetWayX() <= MAZE_WIDTH)
+                enemy.MoveMinotaur(enemy.GetWayX() + step, enemy.GetWayY());
+                return;
+            }
+
+            if (minoArray[enemy.GetWayX(), enemy.GetWayY() - step] == 0 &&
+                enemy.GetWayY() > step * 2)
+            {
+                if (minoArray[enemy.GetWayX(), enemy.GetWayY()] != 3)
                 {
-                    if (bricksArray[enemy.GetWayX() + step, enemy.GetWayY()] == 0)
-                    {
-                        enemy.MoveMinotaur(enemy.GetWayX() + step, enemy.GetWayY());
-                        return;
-                    }
+                    minoArray[enemy.GetWayX(), enemy.GetWayY()] = -1;
                 }
-                if (enemy.GetWayY() > step)
+                enemy.MoveMinotaur(enemy.GetWayX(), enemy.GetWayY() - step);
+                return;
+            }
+
+            if (minoArray[enemy.GetWayX() - step, enemy.GetWayY()] == 0 &&
+                enemy.GetWayY() < exitX - step * 2)
+            {
+                if (minoArray[enemy.GetWayX(), enemy.GetWayY()] != 3)
                 {
-                    if (bricksArray[enemy.GetWayX(), enemy.GetWayY() - step] == 0)
-                    {
-                        enemy.MoveMinotaur(enemy.GetWayX(), enemy.GetWayY() - step);
-                        return;
-                    }
-                } 
-                if (enemy.GetWayY() < exitX)
-                {
-                    if (bricksArray[enemy.GetWayX(), enemy.GetWayY() + step] == 0)
-                    {
-                        enemy.MoveMinotaur(enemy.GetWayX(), enemy.GetWayY() + step);
-                        return;
-                    }
+                    minoArray[enemy.GetWayX(), enemy.GetWayY()] = -1;
                 }
+                enemy.MoveMinotaur(enemy.GetWayX() - step, enemy.GetWayY());
+                return;
+            }
+            MarkDeadblock(enemy.GetWayX(), enemy.GetWayY());
+
+        }
+        private void MarkDeadblock(int x, int y)
+        {
+            int count = 0;
+            if (minoArray[x, y - step] == 1 || minoArray[x, y - step] == 3)
+            {
+                count++;
+            }
+            else
+            {
+                minoArray[x, y - step] = 0;
+            }
+            if (minoArray[x + step, y] == 1 || minoArray[x + step, y] == 3)
+            {
+                count++;
+            }
+            else
+            {
+                minoArray[x + step, y] = 0;
+            }
+            if (minoArray[x, y + step] == 1 || minoArray[x, y + step] == 3)
+            {
+                count++;
+            }
+            else
+            {
+                minoArray[x, y + step] = 0;
+            }
+            if (minoArray[x - step, y] == 1 || minoArray[x - step, y] == 3)
+            {
+                count++;
+            }
+            else
+            {
+                minoArray[x - step, y] = 0;
+            }
+            if(count == 3)
+            {
+                minoArray[x, y] = 3;
             }
         }
-
         private void LoadAssets()
         {
             tex_wall = Maze.Properties.Resources.brick_wall;
@@ -231,6 +278,7 @@ namespace Maze
                     if (s == 'X')
                     {
                         bricksArray[xPos, yPos] = 1;
+                        minoArray[xPos, yPos] = 1;
                         e.Graphics.DrawImage(tex_wall, xPos, yPos);
                         //array[j] = new Point(xPos, yPos);
                     }
@@ -242,6 +290,8 @@ namespace Maze
                 xPos = step;
                 i++;
             }
+            //MessageBox.Show("Now" + i.ToString() + " " + j.ToString(), "new");
         }
+        
     }
 }
